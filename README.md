@@ -5,8 +5,15 @@
 - [ ] National Vulnerability Database - https://nvd.nist.gov
 - [ ] CVE Program API - https://www.cve.org
 - [ ] Explot-db- https://www.exploit-db.com
-- [ ] Tenable.io API - https://www.tenable.com
-- [ ] Rapid7 Insight Platform API - https://www.rapid7.com
+- [ ] Tenable.io API - https://developer.tenable.com/reference/navigate
+- [ ] Rapid7 Insight Platform API - https://help.rapid7.com/insightvm/en-us/api/index.html
+- [ ] REDHAT : https://docs.redhat.com/en/documentation/red_hat_security_data_api/1.0/html/red_hat_security_data_api/cve#list_all_cves
+- [ ] VULDB : https://vuldb.com/
+- [ ] Americas cyber defence agency: https://www.cisa.gov/known-exploited-vulnerabilities-catalogi
+- [ ] OSV : https://google.github.io/osv.dev/api/
+- [ ] IBM x-force intelligence: https://api.xforce.ibmcloud.com/doc/#api_section
+- [ ] SHODAN: https://developer.shodan.io/api
+- [ ] GITHUB docs: https://docs.github.com/en/graphql/overview/explorer
 
 ### Manual Scraping Platforms
 

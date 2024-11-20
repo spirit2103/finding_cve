@@ -1,0 +1,10 @@
+# Logging Info
+logging:
+  file_path: "vulnerability_monitor.log"
+
+# Vendors configuration
+vendors:
+  - name: "NVIDIA"
+    url: "https://www.nvidia.com/en-us/security/"
+    selctors:
+      - pattern: ".compare-table tbody tr"

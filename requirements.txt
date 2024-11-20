@@ -1,0 +1,3 @@
+PyYAML # to handle yaml files
+beautifulsoup4
+black # formatting the code

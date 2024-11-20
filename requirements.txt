@@ -1,3 +1,6 @@
 PyYAML # to handle yaml files
 beautifulsoup4
+scrapy
+requests
 black # formatting the code
+

@@ -1,4 +1,5 @@
 import yaml
+import requests
 
 
 class VulnerabilityMonitor:
@@ -29,8 +30,9 @@ class VulnerabilityMonitor:
         Returns list of vulnerability dictionaries
         """
         vulnerabilities = []
-        ...
-
+        
+        try:
+            response = requests.get()
 
 obj = VulnerabilityMonitor("config.yaml") # default value
 print(obj)

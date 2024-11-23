@@ -5,41 +5,54 @@ from nvidia_data import x
 import re 
 
 
-def scrape_nvidia_security(product_name:str):
-    # Mongodb setup
-    # client = MongoClient("mongodb+srv://test:test123@cluster0.xqrer.mongodb.net/")
-    # db = client["vuln"]
-    # collection = db["nvidia"]
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+}
 
-    # url = "https://www.nvidia.com/content/dam/en-zz/Solutions/product-security/product-security.json"
-    # response = requests.get(url)
+URL = "https://www.nvidia.com/content/dam/en-zz/Solutions/product-security/product-security.json"
 
-    # if response.status_code != 200:
-        # print("Failed to fetch the page!")
-        # return
-    
-    # bulletin_data: list = response.json()["data"]
-    
+
+def scrape_nvidia_security(product_name:str)-> list | str:
+    """
+    Fetch and filter NVIDIA security bulletin entries matching the given product name 
+
+    Args:
+        product_name (str): The name of the product to search for.
+    Returns:
+        A list of matching security bulletin entries
+    """
+
     matching_entries: list = []
-    for entry in x:
-        if product_name.lower() in entry["title"].lower():
-            matching_entries.append(entry)
+    try:
+        # Send a get request to the URL with a dummy header 
+        response = requests.get(url=URL, headers=headers)
 
-    # iterate through the entries and getting description tag text
-    return matching_entries
+        if response.status_code != 200:
+            return "Failed to fetch the page!"
+
+        # bulletin data from NVIDIA security
+        bulletin_data: list = response.json()["data"]
+
+        # Searching for matching product entries
+        for entry in bulletin_data:
+            if product_name.lower() in entry["title"].lower():
+                matching_entries.append(entry)
+        return matching_entries
+
+    except requests.RequestException as e:
+        return f"Error while fetching data: {e}"
+    except KeyError:
+        return f"Unexpected json structure"
 
 
 def fetch_description_from_link(url):
     try:
-        response = requests.get(url)
+        response = requests.get(url=url, headers=headers)
         if response.status_code != 200:
             return "Failed to fetch description"
         soup = BeautifulSoup(response.text, "html.parser")
-        print(soup.prettify())
-        table = soup.find("figure", class_="table")
-        print(table)
-        tbody_tag = table.find("tbody")
-        print(tbody_tag)
+        table_tag = soup.select_one("figure.table")
+        tbody_tag = table_tag.find("tbody")
         d_tag = tbody_tag.find_all("td")
         if d_tag:
             return d_tag[1].get_text()
@@ -49,35 +62,47 @@ def fetch_description_from_link(url):
     except requests.RequestException as e:
         return f"Error fetching description: {e}"
 
+def extract_product_details(entries: list)-> list | str:
+    """
+    Extract the details of a particular product
+    Args:
+        Takes a list of matched title that matches in the nvidia bulletin list
+    Returns:
+        A list of the product detail(s)
+    """
 
-def extract_product_details(entries: list):
     product_regex = r">(.+?)</a>"
     url_regex = r"https://nvidia.custhelp.com/app/answers/detail/a_id/\d{1,8}"
-    
-    structured_data = []
 
+    structured_data: list = []
+
+    # Iterate through each entries to get details
     for entry in entries:
-        product_name = re.search(product_regex, entry["title"]).group(1)
-        cve_id = entry["cve identifier(s)"]
-        severity = entry["severity"]
-        publish_date = entry["publish date"]
-        last_updated = entry["last updated"]
-        url = re.search(url_regex, entry["title"]).group(0)
-        description = fetch_description_from_link(url)
-        
-        # store the structured data
-        product_details = {
-            "product_name": product_name,
-            "cve_id": cve_id,
-            "severity": severity,
-            "publish date": publish_date,
-            "last updated": last_updated,
-            "description": description,
-            "link": url,
-        }
+        try:
+            product_name = re.search(product_regex, entry["title"]).group(1)
+            cve_id = entry["cve identifier(s)"]
+            severity = entry["severity"]
+            publish_date = entry["publish date"]
+            last_updated = entry["last updated"]
+            url = re.search(url_regex, entry["title"]).group(0)
+            description = fetch_description_from_link(url)
 
-        structured_data.append(product_details)
+            # store the structured data
+            product_details: dict = {
+                "product_name": product_name,
+                "cve_id": cve_id,
+                "severity": severity,
+                "publish date": publish_date,
+                "last updated": last_updated,
+                "description": description,
+                "link": url,
+            }
+
+            structured_data.append(product_details)
+        except Exception as e:
+            return f"Error processing entry: {entry}\nError: {e}"
     return structured_data
 
-scrape_data = scrape_nvidia_security("GPU")
-extract_product_details(scrape_data)
+data = extract_product_details(scrape_nvidia_security("NeMo"))
+print(data)
+

@@ -49,7 +49,7 @@
 
 - Vendor-Specific Sites
   - [ ] Microsoft: https://msrc.microsoft.com/update-guide
-  - [ ] NVIDIA : https://www.nvidia.com/en-us/security/
+  - [x] NVIDIA : https://www.nvidia.com/en-us/security/
   - [ ] INTEL : https://www.intel.com/content/www/us/en/security-center/default.html
   - [ ] DELL : https://www.dell.com/support/security/en-us
   - [ ] APPLE : https://support.apple.com/en-us/100100

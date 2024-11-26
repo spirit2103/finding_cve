@@ -8,6 +8,8 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatMessagePromptTemplate
 from pydantic import ValidationError, validate_call
 
+
+"""
 messages = [
     {"role": "user", "content": "You are tasked with extracting specific information from the following text content: {dom_content}. "
                                     "Please follow these instructions carefully: \n\n"
@@ -19,29 +21,14 @@ messages = [
 
 model = OllamaLLM(model="llama3")
 
-# load_dotenv()
 
-# """
+
 # response = requests.get("https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch=Microsoft Windows")
 # if response.status_code != 200:
 #     print(f"Request failed")
 # print(response.json())
-# """
-
-# # url = "https://www.se.com/ww/en/work/support/cybersecurity/security-notifications.jsp"
-
-# # def get_html(url:str):
-
-# #     scraper_api = os.getenv("SCRAPER_API")
-# #     payload = {'api_key': scraper_api, 'url': url, 'render': 'true'}
-# #     response = requests.get(url, params=payload)
-# #     if response.status_code != 200:
-# #         return f"Failed to scrape the page!\nStatus code: {response.status_code}"
-   
-# #     return response.text
 
 
-# # print(get_html(url=url))
 
 
 # def get_cve_id(file_name):
@@ -65,47 +52,13 @@ model = OllamaLLM(model="llama3")
 
 
 # print(len(categorized_data["2024"]))
-with open("random.html", 'r', encoding="utf-8") as file:
-    html_content = file.read()
-    # soup = BeautifulSoup(html_content, 'html.parser')
-    # body = soup.body
-    # print(type(body))
-    # if body:
-    #     soup1 = BeautifulSoup(body, 'html.parser')
-    #     for script_or_style in soup1(["script", "style"]):
-    #         script_or_style.extract()
-    #     cleaned_content = soup1.get_text(separator="\n")
-    #     cleaned_content = "\n".join(line.strip() for line in cleaned_content.splitlines() if line.strip())
-    #     print(cleaned_content)
-    # else:
-    #     print("Page not found")
-
-def extract_body_element(html_content):
-    soup = BeautifulSoup(html_content, "html.parser")
-    body_content = soup.body
-    if body_content:
-        return str(body_content)
-    return ""
-
-def clean_body_content(body_content):
-    soup = BeautifulSoup(body_content, "html.parser")
-    for script_or_style in soup(["script", "style"]):
-        script_or_style.extract()
-
-    # Get text or further process the content
-    cleaned_content = soup.get_text(separator="\n")
-    cleaned_content = "\n".join(
-        line.strip() for line in cleaned_content.splitlines() if line.strip()
-    )
-
-    return cleaned_content
 
 
 def split_dom_content(dom_content, max_length=6000):
     return [
         dom_content[i : i + max_length] for i in range(0, len(dom_content), max_length)
     ]
-# print(clean_body_content(extract_body_element(html_content=html_content)))
+
 
 def parse_with_ollama(dom_chunks, parse_description):
     try:
@@ -131,4 +84,98 @@ def parse_with_ollama(dom_chunks, parse_description):
 # dom_data = split_dom_content(clean_body_content(extract_body_element(html_content)))
 # # print(parse_with_ollama(dom_chunks=dom_data, parse_description=desc))
 # print(dom_data)
-print(clean_body_content(extract_body_element(html_content)))
+#
+"""
+
+"""
+    Main part 
+"""
+
+# load the environment varaibles
+load_dotenv()
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+}
+
+def get_html(url: str) -> any:
+    """
+    Get the html content provided the given url
+    Args:
+        url to screpe
+    Returns: 
+        Returns the html content
+    """
+
+    # Scraper api payload
+    payload = {
+        'api_key': os.getenv("SCRAPER_API"), # fetch the api_key
+        'url': url, # the site to scrape 
+        'render': 'true' # to allow the js rendering
+    }
+
+    try:
+        response = requests.get('https://api.scraperapi.com/', params=payload, headers=headers)
+        if response.status_code != 200:
+            return f"Failed to fetch the page!\n Status code: {response.status_code}"
+        return response.text
+
+    except requests.RequestException as e:
+        return f"Error fetching docs: {e}"
+
+
+def extract_body_element(html_content) -> str:
+    """
+    Takes html content and extract the body part
+    Args:
+        html content
+    Returns:
+        String or the body of html content
+    """
+    soup = BeautifulSoup(html_content, "html.parser")
+    body_content = soup.body
+    if body_content:
+        return str(body_content)
+    return ""
+
+
+def clean_body_content(body_content):
+    """
+    Preprocess the body of html Content
+    Args:
+        Takes noisy body of html
+    Returns:
+        Returns str or cleaned_content
+    """
+    soup = BeautifulSoup(body_content, "html.parser")
+
+    # Removes the script and style tags
+    for script_or_style in soup(["script", "style"]):
+        script_or_style.extract()
+
+    # Get text or further process the content
+    cleaned_content = soup.get_text(separator="\n")
+
+    stripped_lines = []
+    lines = cleaned_content.splitlines()
+    for line in lines:
+        if line.strip():
+            stripped_lines.append(line)
+    cleaned_content = "\n".join(stripped_lines)
+    return cleaned_content
+
+
+def main():
+    # url: str = input("Enter the url to scrape: ")
+    # Intel security page: trial
+    # html_content = get_html(url="https://www.se.com/ww/en/work/support/cybersecurity/security-notifications.jsp")
+    # print(html_content)
+    with open("s_electric.html", 'r', encoding='utf-8') as file:
+        html_content = file.read()
+    print(clean_body_content(extract_body_element(html_content)))
+
+
+if __name__ == "__main__":
+    main()
+
+

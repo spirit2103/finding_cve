@@ -49,15 +49,7 @@ model = OllamaLLM(model="llama3")
 #     categorized_data[year].append(cve)
 
 
-
-
 # print(len(categorized_data["2024"]))
-
-
-def split_dom_content(dom_content, max_length=6000):
-    return [
-        dom_content[i : i + max_length] for i in range(0, len(dom_content), max_length)
-    ]
 
 
 def parse_with_ollama(dom_chunks, parse_description):
@@ -165,6 +157,16 @@ def clean_body_content(body_content):
     return cleaned_content
 
 
+def split_dom_content(dom_content, max_length=6000):
+    """Split content in chunks of 6000 length"""
+
+    result = []
+    for i in range(0, len(dom_content), max_length):
+        chunk = dom_content[i:i+max_length]
+        result.append(chunk)
+    return result
+
+
 def main():
     # url: str = input("Enter the url to scrape: ")
     # Intel security page: trial
@@ -172,7 +174,7 @@ def main():
     # print(html_content)
     with open("s_electric.html", 'r', encoding='utf-8') as file:
         html_content = file.read()
-    print(clean_body_content(extract_body_element(html_content)))
+    print(split_dom_content(clean_body_content(extract_body_element(html_content))))
 
 
 if __name__ == "__main__":
